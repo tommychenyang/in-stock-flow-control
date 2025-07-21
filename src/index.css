@@ -2,41 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Material 3 Design System - Manufacturing Inventory Management 
+All colors MUST be HSL for consistent theming.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Material 3 Surface Colors */
+    --background: 254 100% 99%;
+    --foreground: 263 25% 12%;
+    --surface: 254 100% 99%;
+    --surface-variant: 263 12% 93%;
+    --surface-container: 263 15% 96%;
+    --surface-container-high: 263 20% 94%;
+    --surface-container-highest: 263 25% 92%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Material 3 Primary Colors - Deep Purple Theme */
+    --primary: 263 85% 45%;
+    --primary-foreground: 254 100% 99%;
+    --primary-container: 263 100% 95%;
+    --primary-container-foreground: 263 85% 25%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Material 3 Secondary Colors */
+    --secondary: 263 35% 65%;
+    --secondary-foreground: 254 100% 99%;
+    --secondary-container: 263 45% 90%;
+    --secondary-foreground-container: 263 35% 25%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Material 3 Tertiary Colors */
+    --tertiary: 45 100% 55%;
+    --tertiary-foreground: 263 25% 12%;
+    --tertiary-container: 45 100% 95%;
+    --tertiary-container-foreground: 45 100% 25%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Card and Container Colors */
+    --card: 254 100% 99%;
+    --card-foreground: 263 25% 12%;
+    
+    --popover: 254 100% 99%;
+    --popover-foreground: 263 25% 12%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted and Accent */
+    --muted: 263 12% 93%;
+    --muted-foreground: 263 15% 45%;
+    --accent: 263 35% 65%;
+    --accent-foreground: 254 100% 99%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Status Colors */
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 254 100% 99%;
+    --success: 120 85% 45%;
+    --success-foreground: 254 100% 99%;
+    --warning: 45 100% 55%;
+    --warning-foreground: 263 25% 12%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Interactive Elements */
+    --border: 263 20% 85%;
+    --input: 263 20% 85%;
+    --ring: 263 85% 45%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Material 3 Elevation Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(263 25% 12% / 0.05);
+    --shadow: 0 1px 3px 0 hsl(263 25% 12% / 0.1), 0 1px 2px -1px hsl(263 25% 12% / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(263 25% 12% / 0.1), 0 2px 4px -2px hsl(263 25% 12% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(263 25% 12% / 0.1), 0 4px 6px -4px hsl(263 25% 12% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(263 25% 12% / 0.1), 0 8px 10px -6px hsl(263 25% 12% / 0.1);
 
-    --radius: 0.5rem;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-container)));
+    --gradient-surface: linear-gradient(180deg, hsl(var(--surface)), hsl(var(--surface-variant)));
+    --gradient-accent: linear-gradient(45deg, hsl(var(--tertiary)), hsl(var(--accent)));
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
