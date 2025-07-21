@@ -8,6 +8,7 @@ import Products from "./pages/Products";
 import Suppliers from "./pages/Suppliers";
 import Procurement from "./pages/Procurement";
 import Sales from "./pages/Sales";
+import Quotations from "./pages/Quotations";
 import NotFound from "./pages/NotFound";
 import { MainLayout } from "./components/layout/MainLayout";
 
@@ -39,7 +40,7 @@ const App = () => (
           <Route path="/procurement" element={<MainLayout><Procurement /></MainLayout>} />
           <Route path="/sales" element={<MainLayout><Sales /></MainLayout>} />
           <Route path="/inventory" element={<MainLayout><ComingSoon title="Inventory Updates" /></MainLayout>} />
-          <Route path="/quotations" element={<MainLayout><ComingSoon title="Quotations & Inquiries" /></MainLayout>} />
+          <Route path="/quotations" element={<MainLayout><Quotations /></MainLayout>} />
           <Route path="/audit" element={<MainLayout><ComingSoon title="Audit Logs" /></MainLayout>} />
           <Route path="/settings" element={<MainLayout><ComingSoon title="User Management" /></MainLayout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
