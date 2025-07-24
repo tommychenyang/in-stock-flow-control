@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Upload, Plus, X, AlertCircle, Search, FileText } from 'lucide-react';
+import { ArrowLeft, Upload, Plus, X, AlertCircle, Search, FileText, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -53,6 +54,8 @@ export function QuotationForm() {
   const [quotationNumber, setQuotationNumber] = useState(
     isEdit ? `QT-2024-${id?.padStart(3, '0')}` : `QT-2024-${String(Date.now()).slice(-3)}`
   );
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   const filteredProducts = mockProducts.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -147,19 +150,42 @@ export function QuotationForm() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/quotations')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Quotations
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold">
-            {isEdit ? 'Edit Quotation' : 'Create New Quotation'}
-          </h1>
-          <p className="text-muted-foreground">
-            Quotation: {quotationNumber}
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/quotations')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Quotations
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">
+              {isEdit ? 'Edit Quotation' : 'Create New Quotation'}
+            </h1>
+            <p className="text-muted-foreground">
+              Quotation: {quotationNumber}
+            </p>
+          </div>
         </div>
+        
+        {/* Add Product Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add Product
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={() => setIsUploadModalOpen(true)}>
+              <Upload className="h-4 w-4 mr-2" />
+              Bulk Upload (Excel)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsSearchModalOpen(true)}>
+              <Search className="h-4 w-4 mr-2" />
+              Manual Lookup
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Customer Info */}
@@ -190,36 +216,6 @@ export function QuotationForm() {
         </CardContent>
       </Card>
 
-      {/* Excel Upload */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            Upload Excel File
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-            <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-            <div className="space-y-1">
-              <p className="font-medium">Upload buyer's Excel file</p>
-              <p className="text-sm text-muted-foreground">Products will be automatically matched</p>
-            </div>
-            <Input
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={handleFileUpload}
-              className="mt-4 cursor-pointer max-w-xs mx-auto"
-            />
-          </div>
-          {uploadedFile && (
-            <div className="mt-4 p-3 bg-surface-variant rounded-lg">
-              <p className="font-medium">File uploaded: {uploadedFile.name}</p>
-              <p className="text-sm text-muted-foreground">Processing...</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Unmatched Items Banner */}
       {unmatchedItems.length > 0 && (
@@ -317,44 +313,6 @@ export function QuotationForm() {
         </Alert>
       )}
 
-      {/* Product Search and Add */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5" />
-            Search and Add Products
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <Input
-              placeholder="Search products by name or code..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            {searchQuery && (
-              <div className="grid gap-2 max-h-48 overflow-y-auto">
-                {filteredProducts.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-surface-variant/50">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{product.name}</span>
-                        <Badge variant="outline">{product.code}</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{product.specifications}</p>
-                      <span className="text-sm">Price: ${product.unitPrice}</span>
-                    </div>
-                    <Button size="sm" onClick={() => handleAddProduct(product)}>
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Quotation Items Table */}
       <Card>
@@ -432,6 +390,102 @@ export function QuotationForm() {
           Submit Quotation
         </Button>
       </div>
+
+      {/* Excel Upload Modal */}
+      <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5" />
+              Upload Excel File
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+              <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+              <div className="space-y-1">
+                <p className="font-medium">Upload buyer's Excel file</p>
+                <p className="text-sm text-muted-foreground">Products will be automatically matched</p>
+              </div>
+              <Input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={(e) => {
+                  handleFileUpload(e);
+                  setIsUploadModalOpen(false);
+                }}
+                className="mt-4 cursor-pointer"
+              />
+            </div>
+            {uploadedFile && (
+              <div className="p-3 bg-surface-variant rounded-lg">
+                <p className="font-medium">File uploaded: {uploadedFile.name}</p>
+                <p className="text-sm text-muted-foreground">Processing...</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Product Search Modal */}
+      <Dialog open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Search and Add Products
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Input
+              placeholder="Search products by name or code..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+            />
+            <div className="max-h-96 overflow-y-auto space-y-2">
+              {searchQuery ? (
+                filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => (
+                    <div key={product.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-surface-variant/50">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{product.name}</span>
+                          <Badge variant="outline">{product.code}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{product.specifications}</p>
+                        <span className="text-sm">Price: ${product.unitPrice}</span>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        onClick={() => {
+                          handleAddProduct(product);
+                          setIsSearchModalOpen(false);
+                          setSearchQuery('');
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add
+                      </Button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Search className="mx-auto h-12 w-12 mb-4" />
+                    <p>No products found</p>
+                    <p className="text-sm">Try a different search term</p>
+                  </div>
+                )
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Search className="mx-auto h-12 w-12 mb-4" />
+                  <p>Start typing to search products</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
