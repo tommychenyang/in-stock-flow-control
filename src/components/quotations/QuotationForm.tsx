@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Upload, Plus, X, AlertCircle, Search, FileText, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Upload, Plus, X, AlertCircle, Search, FileText, ChevronDown, Calculator } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { useNavigate, useParams } from 'react-router-dom';
 
 interface Product {
@@ -35,11 +36,35 @@ interface UnmatchedItem {
   specifications?: string;
 }
 
+interface PriceHistoryItem {
+  date: string;
+  quotationNumber: string;
+  type: 'quotation' | 'sales_order';
+  unitPrice: number;
+  customer: string;
+}
+
 const mockProducts: Product[] = [
   { id: '1', code: 'ST001', name: 'Steel Rod 10mm', specifications: '10mm diameter, 6m length', stock: 150, unitPrice: 25.50, category: 'Steel' },
   { id: '2', code: 'ST002', name: 'Steel Plate 5mm', specifications: '5mm thick, 1m x 2m', stock: 75, unitPrice: 85.00, category: 'Steel' },
   { id: '3', code: 'AL001', name: 'Aluminum Sheet', specifications: '3mm thick, 1m x 1m', stock: 200, unitPrice: 45.00, category: 'Aluminum' },
 ];
+
+const mockPriceHistory: Record<string, PriceHistoryItem[]> = {
+  '1': [
+    { date: '2024-01-15', quotationNumber: 'QT-2024-001', type: 'quotation', unitPrice: 24.00, customer: 'ABC Corp' },
+    { date: '2024-02-10', quotationNumber: 'SO-2024-005', type: 'sales_order', unitPrice: 25.50, customer: 'XYZ Ltd' },
+    { date: '2024-03-05', quotationNumber: 'QT-2024-012', type: 'quotation', unitPrice: 26.00, customer: 'DEF Inc' },
+  ],
+  '2': [
+    { date: '2024-01-20', quotationNumber: 'QT-2024-003', type: 'quotation', unitPrice: 82.00, customer: 'ABC Corp' },
+    { date: '2024-02-15', quotationNumber: 'SO-2024-008', type: 'sales_order', unitPrice: 85.00, customer: 'GHI Co' },
+  ],
+  '3': [
+    { date: '2024-01-25', quotationNumber: 'QT-2024-002', type: 'quotation', unitPrice: 43.50, customer: 'JKL Corp' },
+    { date: '2024-02-20', quotationNumber: 'SO-2024-010', type: 'sales_order', unitPrice: 45.00, customer: 'MNO Ltd' },
+  ],
+};
 
 export function QuotationForm() {
   const navigate = useNavigate();
@@ -109,6 +134,20 @@ export function QuotationForm() {
           : item
       )
     );
+  };
+
+  const updateUnitPrice = (productId: string, newUnitPrice: number) => {
+    setQuotationItems(items =>
+      items.map(item =>
+        item.id === productId
+          ? { ...item, unitPrice: newUnitPrice, subtotal: item.quantity * newUnitPrice }
+          : item
+      )
+    );
+  };
+
+  const selectHistoricalPrice = (productId: string, price: number) => {
+    updateUnitPrice(productId, price);
   };
 
   const removeItem = (productId: string) => {
@@ -350,7 +389,84 @@ export function QuotationForm() {
                     <TableCell className="font-medium">{item.code}</TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell className="max-w-xs truncate">{item.specifications}</TableCell>
-                    <TableCell>${item.unitPrice.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          value={item.unitPrice}
+                          onChange={(e) => updateUnitPrice(item.id, parseFloat(e.target.value) || 0)}
+                          className="w-20"
+                          step="0.01"
+                          min="0"
+                        />
+                        <Drawer>
+                          <DrawerTrigger asChild>
+                            <Button size="sm" variant="ghost">
+                              <Calculator className="h-4 w-4" />
+                            </Button>
+                          </DrawerTrigger>
+                          <DrawerContent className="max-h-[80vh]">
+                            <DrawerHeader>
+                              <DrawerTitle>Price History - {item.name}</DrawerTitle>
+                              <DrawerDescription>
+                                View historical prices for this product from quotations and sales orders
+                              </DrawerDescription>
+                            </DrawerHeader>
+                            <div className="p-6 space-y-4">
+                              <div className="space-y-2">
+                                <Label>Manual Price Input</Label>
+                                <div className="flex gap-2">
+                                  <Input
+                                    type="number"
+                                    placeholder="Enter new price"
+                                    step="0.01"
+                                    min="0"
+                                    onChange={(e) => {
+                                      const newPrice = parseFloat(e.target.value);
+                                      if (!isNaN(newPrice)) {
+                                        updateUnitPrice(item.id, newPrice);
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label>Historical Prices</Label>
+                                <div className="max-h-60 overflow-y-auto space-y-2">
+                                  {mockPriceHistory[item.id]?.map((history, index) => (
+                                    <div 
+                                      key={index}
+                                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
+                                      onClick={() => selectHistoricalPrice(item.id, history.unitPrice)}
+                                    >
+                                      <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                          <Badge variant={history.type === 'quotation' ? 'outline' : 'default'}>
+                                            {history.type === 'quotation' ? 'Quotation' : 'Sales Order'}
+                                          </Badge>
+                                          <span className="text-sm font-medium">{history.quotationNumber}</span>
+                                        </div>
+                                        <div className="text-sm text-muted-foreground">
+                                          {history.customer} • {history.date}
+                                        </div>
+                                      </div>
+                                      <div className="text-lg font-semibold">
+                                        ${history.unitPrice.toFixed(2)}
+                                      </div>
+                                    </div>
+                                  )) || (
+                                    <div className="text-center py-4 text-muted-foreground">
+                                      <p>No price history available</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </DrawerContent>
+                        </Drawer>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Input
                         type="number"
