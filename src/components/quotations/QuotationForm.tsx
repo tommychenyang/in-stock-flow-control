@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useNavigate, useParams } from 'react-router-dom';
 
 interface Product {
@@ -389,84 +389,16 @@ export function QuotationForm() {
                     <TableCell className="font-medium">{item.code}</TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell className="max-w-xs truncate">{item.specifications}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="number"
-                          value={item.unitPrice}
-                          onChange={(e) => updateUnitPrice(item.id, parseFloat(e.target.value) || 0)}
-                          className="w-20"
-                          step="0.01"
-                          min="0"
-                        />
-                        <Drawer>
-                          <DrawerTrigger asChild>
-                            <Button size="sm" variant="ghost">
-                              <Calculator className="h-4 w-4" />
-                            </Button>
-                          </DrawerTrigger>
-                          <DrawerContent className="max-h-[80vh]">
-                            <DrawerHeader>
-                              <DrawerTitle>Price History - {item.name}</DrawerTitle>
-                              <DrawerDescription>
-                                View historical prices for this product from quotations and sales orders
-                              </DrawerDescription>
-                            </DrawerHeader>
-                            <div className="p-6 space-y-4">
-                              <div className="space-y-2">
-                                <Label>Manual Price Input</Label>
-                                <div className="flex gap-2">
-                                  <Input
-                                    type="number"
-                                    placeholder="Enter new price"
-                                    step="0.01"
-                                    min="0"
-                                    onChange={(e) => {
-                                      const newPrice = parseFloat(e.target.value);
-                                      if (!isNaN(newPrice)) {
-                                        updateUnitPrice(item.id, newPrice);
-                                      }
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label>Historical Prices</Label>
-                                <div className="max-h-60 overflow-y-auto space-y-2">
-                                  {mockPriceHistory[item.id]?.map((history, index) => (
-                                    <div 
-                                      key={index}
-                                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                                      onClick={() => selectHistoricalPrice(item.id, history.unitPrice)}
-                                    >
-                                      <div className="space-y-1">
-                                        <div className="flex items-center gap-2">
-                                          <Badge variant={history.type === 'quotation' ? 'outline' : 'default'}>
-                                            {history.type === 'quotation' ? 'Quotation' : 'Sales Order'}
-                                          </Badge>
-                                          <span className="text-sm font-medium">{history.quotationNumber}</span>
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                          {history.customer} • {history.date}
-                                        </div>
-                                      </div>
-                                      <div className="text-lg font-semibold">
-                                        ${history.unitPrice.toFixed(2)}
-                                      </div>
-                                    </div>
-                                  )) || (
-                                    <div className="text-center py-4 text-muted-foreground">
-                                      <p>No price history available</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </DrawerContent>
-                        </Drawer>
-                      </div>
-                    </TableCell>
+                     <TableCell>
+                       <Input
+                         type="number"
+                         value={item.unitPrice}
+                         onChange={(e) => updateUnitPrice(item.id, parseFloat(e.target.value) || 0)}
+                         className="w-20"
+                         step="0.01"
+                         min="0"
+                       />
+                     </TableCell>
                     <TableCell>
                       <Input
                         type="number"
@@ -477,15 +409,82 @@ export function QuotationForm() {
                       />
                     </TableCell>
                     <TableCell className="font-semibold">${item.subtotal.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => removeItem(item.id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+                     <TableCell>
+                       <div className="flex items-center gap-2">
+                         <Sheet>
+                           <SheetTrigger asChild>
+                             <Button size="sm" variant="ghost">
+                               <Calculator className="h-4 w-4" />
+                             </Button>
+                           </SheetTrigger>
+                           <SheetContent side="right" className="min-w-96">
+                             <SheetHeader>
+                               <SheetTitle>Price History - {item.name}</SheetTitle>
+                               <SheetDescription>
+                                 View historical prices for this product from quotations and sales orders
+                               </SheetDescription>
+                             </SheetHeader>
+                             <div className="space-y-6 mt-6">
+                               <div className="space-y-3">
+                                 <Label>Manual Price Input</Label>
+                                 <div className="flex gap-2">
+                                   <Input
+                                     type="number"
+                                     placeholder="Enter new price"
+                                     step="0.01"
+                                     min="0"
+                                     onChange={(e) => {
+                                       const newPrice = parseFloat(e.target.value);
+                                       if (!isNaN(newPrice)) {
+                                         updateUnitPrice(item.id, newPrice);
+                                       }
+                                     }}
+                                   />
+                                 </div>
+                               </div>
+                               
+                               <div className="space-y-3">
+                                 <Label>Historical Prices</Label>
+                                 <div className="space-y-2 max-h-96 overflow-y-auto">
+                                   {mockPriceHistory[item.id]?.map((historyItem, index) => (
+                                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-surface-variant/50">
+                                       <div className="flex-1">
+                                         <div className="flex items-center gap-2">
+                                           <Badge variant={historyItem.type === 'quotation' ? 'outline' : 'secondary'}>
+                                             {historyItem.type === 'quotation' ? 'Quote' : 'Order'}
+                                           </Badge>
+                                           <span className="font-semibold">${historyItem.unitPrice.toFixed(2)}</span>
+                                         </div>
+                                         <p className="text-sm text-muted-foreground">{historyItem.quotationNumber}</p>
+                                         <p className="text-sm text-muted-foreground">{historyItem.customer} - {historyItem.date}</p>
+                                       </div>
+                                       <Button 
+                                         size="sm" 
+                                         variant="outline"
+                                         onClick={() => selectHistoricalPrice(item.id, historyItem.unitPrice)}
+                                       >
+                                         Use This Price
+                                       </Button>
+                                     </div>
+                                   )) || (
+                                     <div className="text-center py-8 text-muted-foreground">
+                                       <p>No price history available</p>
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                             </div>
+                           </SheetContent>
+                         </Sheet>
+                         <Button
+                           size="sm"
+                           variant="ghost"
+                           onClick={() => removeItem(item.id)}
+                         >
+                           <X className="h-4 w-4" />
+                         </Button>
+                       </div>
+                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
